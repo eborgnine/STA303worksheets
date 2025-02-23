@@ -1,0 +1,112 @@
+---
+title: Week 6 worksheet
+author: STA303
+date: 22 Feb 2025
+---
+
+https://r.datatools.utoronto.ca/hub/user-redirect/git-pull?repo=https%3A%2F%2Fgithub.com%2Fkdaignault86%2FSTA303W2025_W4&urlpath=rstudio%2F&branch=main
+
+https://r.datatools.utoronto.ca/hub/user-redirect/git-pull?repo=https%3A%2F%2Fgithub.com%2Feborgnine%2Fteaching%2Fsta303&urlpath=rstudio%2F&branch=main
+
+Today we'll consider the MathAchieve dataset from the MEMSS package
+
+```{r theData}
+data("MathAchieve", package='MEMSS')
+head(MathAchieve)
+```
+
+A description of the data is in the package's help file
+
+```
+help("MathAchieve", package='MEMSS')
+```
+
+Notable information  from the help file is below
+
+```
+This data frame contains the following columns:
+
+School an ordered factor identifying the school that the student                  
+          attends                                                                      
+                                                                                       
+Minority a factor with levels ‘No’ ‘Yes’ indicating if the student                
+          is a member of a minority racial group.                                      
+                                                                                       
+Sex a factor with levels ‘Male’ ‘Female’                                          
+                                                                                       
+SES a numeric vector of socio-economic status.                                    
+                                                                                       
+MathAch a numeric vector of mathematics achievement scores.                       
+                                                                                       
+MEANSES a numeric vector of the mean SES for the school.   
+```     
+
+Below is an intercept-only linear regression model
+
+```{r aDumbModel}
+res = glmmTMB::glmmTMB(MathAch ~ 1, data = MathAchieve)
+knitr::kable(confint(res, full=TRUE), digits=2)
+```
+
+Let's look at a profile likelihood plot of the standard deviation parameter
+
+```{r dumbProfile}
+theProf = profile(res, parm='sigma')
+plot(theProf[,c('.focal','value')])
+Sprob = c(0.5, 0.8, 0.95, 0.99)
+Squant = qchisq(Sprob, df=1)/2
+abline(h=Squant, lty=3)
+```
+
+You'll notice the minimum of the profile likelihood is not at the MLE for `sigma` in the `confint` table.  This is because internally `glmmTMB` works with the log of the standard devition.   This can be checked by noticing the exponential of the `betadisp` parameter is the same as the estimate above.
+
+```{r checkParams}
+res$fit$par
+exp(res$fit$par['betadisp'])
+```
+
+We can make a profile likelihood plot of the SD as follows.
+
+```{r profSd}
+theProf$sd = exp(theProf$.focal)
+plot(theProf[,c('sd','value')])
+```
+
+Now fit a better model, using sex, each student's SES, and the school-average SES, as well as a school-level random effect.
+
+```{r aGoodModel}
+
+```
+
+Now make a plot of the profile likelihood for the school-level standard deviation parameter.  The parameter name you need to pass to the `parm=` argument is the name listed in `rownames(vcov(res, full=TRUE))`, it's going to be something like `'theta|School'`.
+
+
+```{r profileSd}
+
+```
+
+You'll find the minimum of the profile likelihood isn't the same as the MLE, check if exponentiating the `theta` parameter in `res$fit$par` gives you something sensible.
+
+```{r checkParams2}
+
+```
+
+Make a profile likelihood plot with SD on the x axis.
+
+```{r profileSdConvert}
+
+```
+
+Now compare the random effects model with a linear regression without the school-level random effect.  We shoud expect the confidence intervals for the `MEANSES` variable  to be much narrower if we don't include the random effect.  There are 7000 observations in the dataset but only 160 schools.  The `Sex` and `SES` variables vary within schools and their CI's won't change much when the random effect is added.  The `MEANSES` variable has one value per school, so the sample size is effectively 160 instead of 7000, so the CI's will be narrower.
+
+```{r noRandomEffectsModel}
+
+```
+
+Use the `confint` function to compare the confidence intervals of the models with and without random effects.
+
+```{r compareModels}
+
+```
+
+
