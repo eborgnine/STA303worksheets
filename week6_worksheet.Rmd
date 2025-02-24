@@ -65,13 +65,13 @@ You'll notice the minimum of the profile likelihood is not at the MLE for `sigma
 
 ```{r checkParams}
 res$fit$par
-exp(res$fit$par['betadisp'])
+sqrt(exp(res$fit$par['betad']))
 ```
 
 We can make a profile likelihood plot of the SD as follows.
 
 ```{r profSd}
-theProf$sd = exp(theProf$.focal)
+theProf$sd = sqrt(exp(theProf$.focal))
 plot(theProf[,c('sd','value')])
 ```
 
