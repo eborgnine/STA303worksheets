@@ -14,6 +14,7 @@ install.packages("TMB", type='source')
 Today we'll consider the `MathAchieve` dataset from the `MEMSS` package
 
 ```{r theData}
+install.packages("MEMSS")
 data("MathAchieve", package='MEMSS')
 head(MathAchieve)
 ```
