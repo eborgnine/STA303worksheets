@@ -4,11 +4,14 @@ author: STA303
 date: 22 Feb 2025
 ---
 
-https://r.datatools.utoronto.ca/hub/user-redirect/git-pull?repo=https%3A%2F%2Fgithub.com%2Fkdaignault86%2FSTA303W2025_W4&urlpath=rstudio%2F&branch=main
 
-https://r.datatools.utoronto.ca/hub/user-redirect/git-pull?repo=https%3A%2F%2Fgithub.com%2Feborgnine%2Fteaching%2Fsta303&urlpath=rstudio%2F&branch=main
+On the jupiter server we need to reinstall the packages from source, because the default versions aren't compatible
+```{r packages}
+install.packages("Matrix", type='source')
+install.packages("TMB", type='source')
+```
 
-Today we'll consider the MathAchieve dataset from the MEMSS package
+Today we'll consider the `MathAchieve` dataset from the `MEMSS` package
 
 ```{r theData}
 data("MathAchieve", package='MEMSS')
