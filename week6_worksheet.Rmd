@@ -62,11 +62,14 @@ Squant = qchisq(Sprob, df=1)/2
 abline(h=Squant, lty=3)
 ```
 
-You'll notice the minimum of the profile likelihood is not at the MLE for `sigma` in the `confint` table.  This is because internally `glmmTMB` works with the log of the standard devition.   This can be checked by noticing the exponential of the `betadisp` parameter is the same as the estimate above.
+You'll notice the minimum of the profile likelihood is not at the MLE for `sigma` in the `confint` table.  This is because internally `glmmTMB` works with the log of the standard devition, or the log of the variance (depending on your version of glmmTMB).   On my laptop the exponential of the `betadisp` parameter is the same as the estimate above.  On the Jupyter server the square root of the exponential of `betad` is the standard deviation.
+
+
 
 ```{r checkParams}
 res$fit$par
 sqrt(exp(res$fit$par['betad']))
+exp(res$fit$par['betadisp'])
 ```
 
 We can make a profile likelihood plot of the SD as follows.
