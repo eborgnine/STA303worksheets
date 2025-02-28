@@ -71,7 +71,7 @@ xSub$transmission = factor(gsub(" .*", "", xSub$trany),
 	levels = c('Automatic','Manual'))
 # type of vehicle (car, van, pickup, SUV)
 xSub$type = gsub("^Standard | Type$|,|s$", "", 
-	gsub("( - |/| )[24]wd", "", xSub$VClass, ignore.case=TRUE)
+	gsub("( - |/| )[24]wd", "", xSub$VClass, ignore.case=TRUE))
 ```
 
 Consider the model
@@ -82,9 +82,9 @@ Consider the model
 
 $$
 \begin{aligned}
-Y_{ij}|U \simiid & \text{Gamma}(\mu_{ij}/\nu, \nu)\\
+Y_{ij}|U \sim & \text{Gamma}(\mu_{ij}/\nu, \nu)\\
 \mu_{ij} = & X_{ij} \beta + U_i\\
-U \sim & \MVN(0, \Sigma)
+U \sim & \text{N}(0, \Sigma)
 \end{aligned}
 $$
 
@@ -93,7 +93,7 @@ Before we start, let's check the interpretation of the `sigma` parameter
 mysim = data.frame(y = rgamma(1000, shape=25, rate = 1))
 confint(glmmTMB::glmmTMB(y~1, data=mysim), full=TRUE)
 ```
-on my laptop I get `sigma`=5, so `sigma` is the shape parameter and the inverse of the coefficient of variation.  
+on my laptop I get `sigma` close to 5, so `sigma` is the shape parameter and the inverse of the coefficient of variation.  
 
 
 ```{r gammaModel}
@@ -106,5 +106,5 @@ plot the random effects using `Pmisc::ranefPlot`, use `maxNames=` to increase th
 Pmisc::ranefPlot(???)
 ```
 
-What's the most fuel efficient car manufacturer?  Of the car companies you've heard of, what's most fuel efficient?  What's less efficient, a Rolls Royce or a Hummer?  Use `glmmTMB::ranef`.
+What's the most fuel efficient car manufacturer?  Of the car companies you've heard of, what's most fuel efficient?  What's less efficient, a Rolls-Royce or a Hummer?  Use `glmmTMB::ranef`.
 
