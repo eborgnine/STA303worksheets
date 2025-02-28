@@ -77,7 +77,7 @@ xSub$type = gsub("^Standard | Type$|,|s$", "",
 Consider the model
 
 - $Y_{ij}$ is fuel consumption for car model $j$ from manufacturer $i$
-- $X_{ij}$ is covariates (cylinders, time (in decades since 2000), and transmission type)
+- $X_{ij}$ is covariates (cylinders, time (in decades since 2000),  transmission, and  type)
 - $U_i$ is manufacturer $i$'s random effect, giving that manufacturer's fuel efficiency relative to similar cars with the same transmission and number of cylinders.
 
 $$
