@@ -1,0 +1,110 @@
+---
+title: Week 7 worksheet
+author: STA303
+date: 3 March 2025
+---
+
+On the jupyter server we need to reinstall the packages from source, because the default versions aren't compatible
+```{r packages, eval=FALSE}
+install.packages(c("Matrix","TMB", "glmmTMB"), type='source')
+```
+
+To use the `ranefPlot` functino you'll need the `Pmisc` package
+
+```{r pmisc}
+if(!requireNamespace("Pmisc", quietly=TRUE)) {
+	install.packages("Pmisc", repos='http://r-forge.r-project.org')
+}
+```
+
+
+Today we'll be looking at fuel efficiency of cars, using data from
+
+`https://www.fueleconomy.gov/feg/download.shtml`
+
+If Donald has shut the web site down you can see it at
+
+`https://web.archive.org/web/20250222131930/https://www.fueleconomy.gov/feg/download.shtml`
+
+
+Download and read in the data:
+```{r carData}
+cUrl =  'https://www.fueleconomy.gov/feg/epadata/vehicles.csv.zip'
+# or https://web.archive.org/web/20250222131930/https://www.fueleconomy.gov/feg/epadata/vehicles.csv.zip
+cFile = file.path(tempdir(), basename(cUrl))
+download.file(cUrl, cFile)
+cFile2 = unzip(cFile, exdir=tempdir())
+x = read.table(cFile2, sep=',', header=TRUE, stringsAsFactors=FALSE)
+```
+
+A description of variables is at
+
+`https://www.fueleconomy.gov/feg/ws/index.shtml#vehicle`
+
+important variables are
+
+- barrels08 - annual petroleum consumption in barrels 
+- comb08 - combined Miles per Gallon 
+- make - manufacturer (division)
+
+
+Here's a plot of fuel consumption over time
+```{r plotCarData}
+plot(x$year, x$barrels08)
+plot(factor(x$fuelType), x$barrels08)
+```
+
+There are a lot of electric and alternate fuel vehicles, we'll remove them.
+```{r subset}
+xSub = x[x$atvType =='' & x$fuelType != 'CNG', ]
+plot(xSub$year, xSub$barrels08, log='y', pch=16, col='#00000003')
+```
+
+Recode some variables
+```{r dataRecode}
+# centre and scale time variable
+xSub$decade = (xSub$year - 2000)/10
+# cylinders, as factor
+xSub$cylFac = relevel(factor(xSub$cylinders), '4')
+# transmission type
+xSub$transmission = factor(gsub(" .*", "", xSub$trany), 
+	levels = c('Automatic','Manual'))
+# type of vehicle (car, van, pickup, SUV)
+xSub$type = gsub("^Standard | Type$|,|s$", "", 
+	gsub("( - |/| )[24]wd", "", xSub$VClass, ignore.case=TRUE)
+```
+
+Consider the model
+
+- $Y_{ij}$ is fuel consumption for car model $j$ from manufacturer $i$
+- $X_{ij}$ is covariates (cylinders, time (in decades since 2000), and transmission type)
+- $U_i$ is manufacturer $i$'s random effect, giving that manufacturer's fuel efficiency relative to similar cars with the same transmission and number of cylinders.
+
+$$
+\begin{aligned}
+Y_{ij}|U \simiid & \text{Gamma}(\mu_{ij}/\nu, \nu)\\
+\mu_{ij} = & X_{ij} \beta + U_i\\
+U \sim & \MVN(0, \Sigma)
+\end{aligned}
+$$
+
+Before we start, let's check the interpretation of the `sigma` parameter
+```{r checkGamma}
+mysim = data.frame(y = rgamma(1000, shape=25, rate = 1))
+confint(glmmTMB::glmmTMB(y~1, data=mysim), full=TRUE)
+```
+on my laptop I get `sigma`=5, so `sigma` is the shape parameter and the inverse of the coefficient of variation.  
+
+
+```{r gammaModel}
+myFitMakeG = glmmTMB::glmmTMB(???)
+```
+
+plot the random effects using `Pmisc::ranefPlot`, use `maxNames=` to increase the number of car manufacturers shown.
+
+```{r ranefPlotG}
+Pmisc::ranefPlot(???)
+```
+
+What's the most fuel efficient car manufacturer?  Of the car companies you've heard of, what's most fuel efficient?  What's less efficient, a Rolls Royce or a Hummer?  Use `glmmTMB::ranef`.
+
