@@ -1,0 +1,86 @@
+---
+title: Week 8 worksheet
+author: STA303
+date: 10 March 2025
+---
+
+
+
+To use the `seasonalFormula` function you'll need the most recent version of the `Pmisc` package (reinstall if your version is more than a week old)
+
+```{r pmisc}
+if(!requireNamespace("Pmisc", quietly=TRUE)) {
+	install.packages("Pmisc", repos='http://r-forge.r-project.org')
+}
+```
+
+
+The point of today's lab is to check if the trend in CO2 was affected by the following.
+- The 1973 oil embargo (OPEC meeting 16 Oct 1973);
+- The fall of the Berlin wall (8 Nov 1989), preceeding events which lead to the collapse of heavy industry in the eastern block countries;
+- China joining the World Trade Organization (11 Dec 2001) which was followed by an explosive growth in China's GDP;
+- The world financial crisis (bankrupcy of Lehman Brothers 15 Sept 2008); and
+- The COVID-19 pandemic (WHO state of emergency 20 Jan 2000).
+
+
+```{r importantDates}
+importantDates = as.Date(c(
+    oil = '1973/10/16',
+    berlin = '1989/11/8',
+    china = '2001/12/11',
+    lehman = '2008/9/15',
+    covid = '2020/1/20'
+))
+```
+
+
+Data from
+[scrippsco2.ucsd.edu/data/atmospheric_co2/mlo.html](https://scrippsco2.ucsd.edu/data/atmospheric_co2/mlo.html)
+
+
+```{r co2Data, echo=FALSE}
+cUrl = paste0('https://scrippsco2.ucsd.edu/assets/data/atmospheric/',
+    'stations/flask_co2/daily/daily_flask_co2_mlo.csv')
+cFile = basename(cUrl)
+if(!file.exists(cFile)) download.file(cUrl, cFile)
+co2s = read.table(cFile, header=TRUE, sep=',', skip=76, stringsAsFactors=FALSE,
+  col.names=c('dateOrig','time','junk1','junk2', 'Nflasks','quality','co2'))
+co2s$date = as.Date(co2s$dateOrig)
+# remove low-quality measurements
+co2s = co2s[co2s$quality==0,  ]
+```
+
+```{r plot}
+plot(co2s[,c('date','co2')], log='y')
+```
+
+Fit an appropriate generalized additive model to the data
+
+```{r fitGam}
+co2s$dateInt = as.integer(co2s$date)
+res = mgcv::gam()
+```
+
+create a data frame for forecasting
+
+```{r newdata}
+newdata = data.frame(
+    date = seq(as.Date('1960/1/1'), as.Date('2030/1/1'), by = 'week')
+)
+```
+
+make predictions of the trend (without the seasonal effect)
+
+```{r gamPred}
+
+```
+
+plot the predicted smooth effect
+
+```{r thePlot}
+
+```
+
+
+For a more thorough analysis of these date see
+![Zhang, Brown and Stafford 2025](https://link.springer.com/article/10.1007/s11222-025-10565-2)
