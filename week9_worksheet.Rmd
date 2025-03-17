@@ -1,0 +1,73 @@
+---
+title: Week 9 worksheet
+author: STA303
+date: 17 March 2025
+---
+
+Today your task is to produce conditional samples CO2 forecasts and compute a joint credible region.
+
+
+To use the `seasonalFormula` function you'll need the most recent version of the `Pmisc` package (reinstall if your version is more than a week old)
+
+```{r pmisc}
+if(!requireNamespace("Pmisc", quietly=TRUE)) {
+	install.packages("Pmisc", repos='http://r-forge.r-project.org')
+}
+```
+
+
+Data from
+[scrippsco2.ucsd.edu/data/atmospheric_co2/mlo.html](https://scrippsco2.ucsd.edu/data/atmospheric_co2/mlo.html)
+
+
+```{r co2Data, echo=FALSE}
+cUrl = paste0('https://scrippsco2.ucsd.edu/assets/data/atmospheric/',
+    'stations/flask_co2/daily/daily_flask_co2_mlo.csv')
+cFile = basename(cUrl)
+if(!file.exists(cFile)) download.file(cUrl, cFile)
+co2s = read.table(cFile, header=TRUE, sep=',', skip=76, stringsAsFactors=FALSE,
+  col.names=c('dateOrig','time','junk1','junk2', 'Nflasks','quality','co2'))
+co2s$date = as.Date(co2s$dateOrig)
+# remove low-quality measurements
+co2s = co2s[co2s$quality==0,  ]
+```
+
+```{r plot}
+plot(co2s[,c('date','co2')], log='y')
+```
+
+
+```{r fitGam}
+co2s$dateInt = as.integer(co2s$date)
+res = mgcv::gam(update.formula(co2 ~  s(dateInt,k=100),
+    Pmisc::seasonalFormula(
+        period=365.35, harmonics=1:2, var='dateInt')), 
+    data=co2s, method='ML', family=Gamma(link='log'))
+```
+
+Predict from 2020 to 2040
+```{r newdata}
+newdata = data.frame(
+    date = seq(as.Date('2020/1/1'), as.Date('2040/1/1'), by = 'days')
+)
+newdata$dateInt = as.integer(newdata$date)
+pred = predict(res, newdata, type='lpmatrix')
+```
+
+
+Create conditional samples.  `mgcv::rmvn`, `coef(res)`, `vcov(res)`
+
+
+
+
+Compute joint confidence envelopes
+
+
+```{r package, eval=FALSE}
+install.packages("GET")
+```
+
+```{r getenv, eval=FALSE}
+GET::curve_set
+GET::central_region
+```
