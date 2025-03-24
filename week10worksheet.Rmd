@@ -1,0 +1,34 @@
+
+The task here is to see if oral cancer is related to chewing tobacco.  Chewing tobacco is reasonably common in India, tobacco is often mixed with Betel nuts and leaves.  Whereas smoking is rarely done by women in India, chewing tobacco is more common.
+
+The file `http://pbrown.ca/teaching/appliedstats/data/mdsLab.rds` contains deaths from the Million Deaths Study which are Upper aerodigestive cancers (ICD10 codes C00-C15,C30-C32,D10-D11).  Controls are deaths due to injuries.
+
+
+Download the MDS death data
+```{r theData}
+deathsFile = file.path(tempdir(), 'mds.rds')
+if(!file.exists(deathsFile)) download.file(
+	"http://pbrown.ca/teaching/appliedstats/data/mdsLab.rds", 
+	deathsFile)
+deaths = readRDS(deathsFile)
+```
+
+```{r deathsTable}
+table(deaths[,c('chewed','case','sex')], exclude=NULL)   
+```
+
+Fit conditional logistic models separately for men and women, using sampling unit (srs_unit_no) as strata
+
+```{r fitClogit}
+
+```
+
+Compute confidence intervals for the log-relative rate
+
+```{r confint}
+\```
+
+Compare to an unmatched GLM
+
+```{r glm}
+```
